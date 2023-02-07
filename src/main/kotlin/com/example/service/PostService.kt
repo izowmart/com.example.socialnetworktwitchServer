@@ -22,12 +22,12 @@ class PostService(
     suspend fun deletePost(postId : String){
         repository.deletePost(postId)
     }
-    suspend fun getPostsFollows(
+    suspend fun getPostsForFollows(
         ownUserId: String,
         page:Int = 0,
         pageSize: Int = Constants.DEFAULT_PAGE_SIZE
     ):List<PostResponse>{
-        return repository.getPostsFollows(ownUserId,page,pageSize)
+        return repository.getPostsForFollows(ownUserId,page,pageSize)
     }
 
     suspend fun getPostsForProfile(

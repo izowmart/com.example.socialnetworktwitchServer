@@ -8,7 +8,7 @@ interface PostRepository {
 
     suspend fun createPost(post: Post): Boolean
     suspend fun deletePost(postId : String)
-    suspend fun getPostsFollows(
+    suspend fun getPostsForFollows(
         ownUserId: String,
         page:Int = 0,
         pageSize: Int = Constants.DEFAULT_PAGE_SIZE
