@@ -24,12 +24,12 @@ class FollowRepositoryImpl(
         }
         users.updateOneById(
             followingUserId,
-            inc(User::followingUserId, 1)
+            inc(User::followingCount, 1)
         )
         users.updateOneById(
             followedUserId,
             inc(
-                User::folloerCount,
+                User::followerCount,
                 1
             )
         )
@@ -52,7 +52,7 @@ class FollowRepositoryImpl(
             )
             users.updateOneById(
                 followedUserId,
-                inc(User::followedCount, -1)
+                inc(User::followerCount, -1)
             )
         }
         return deletedResult.deletedCount > 0
