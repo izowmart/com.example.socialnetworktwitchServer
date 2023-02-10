@@ -2,6 +2,7 @@ package com.example.routes
 
 import com.example.data.requests.CreatePostRequest
 import com.example.data.responses.BasicApiResponse
+import com.example.service.LikeService
 import com.example.service.PostService
 import com.example.util.Constants
 import com.example.util.QueryParams
@@ -107,7 +108,7 @@ fun Route.deletePost(
 
             if (post.userId == call.userId) {
                 postService.deletePost(postId)
-                likeService.deleteLikesForPost(postId)
+                likeService.deleteLikesForParent(postId)
                 commentService.deleteCommentsForPost(postId)
                 call.respond(HttpStatusCode.OK)
             } else {
