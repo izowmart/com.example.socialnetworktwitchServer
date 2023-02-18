@@ -1,5 +1,6 @@
 package com.example.data.models
 
+import com.example.data.responses.SkillDto
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 
@@ -16,7 +17,7 @@ data class User(
     val followerCount: Int = 0,
     val followingCount: Int = 0,
     val postCount: Int = 0,
-//    val skills: List<SkillDto> = listOf(),
+    val skills: List<SkillDto> = listOf(),
     @BsonId
     val id: String = ObjectId().toString(),
 )
