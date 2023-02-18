@@ -27,7 +27,6 @@ fun Route.createComment(
                 )
                 return@post
 
-
             }
             val userId = call.userId
             when (commentService.createComment(request, userId)) {

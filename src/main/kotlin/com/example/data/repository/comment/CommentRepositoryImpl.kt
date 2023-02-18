@@ -16,9 +16,10 @@ class CommentRepositoryImpl(
     private val comments = db.getCollection<Comment>()
     private val likes = db.getCollection<Like>()
 
+    // We insert a new comment and also update the post count number plus 1
     override suspend fun createComment(comment: Comment): String {
         comments.insertOne(comment)
-        val oldCommentCount = posts.findOneById(comment.id)?.commentCount ?: 0
+        val oldCommentCount = posts.findOneById(comment.postId)?.commentCount ?: 0
         posts.updateOneById(comment.postId, setValue(Post::commentCount, oldCommentCount + 1))
         return comment.id
 
