@@ -7,6 +7,7 @@ data class Chat(
     val userIds: List<String>,
     val lastMessageId: String,
     val timestamp: Long,
+
     @BsonId
     val id: String = ObjectId().toString(),
 )
