@@ -1,11 +1,16 @@
 package com.example.service
 
 import com.example.data.models.User
+import com.example.data.repository.follow.FollowRepository
 import com.example.data.repository.user.UserRepository
 import com.example.data.requests.CreateAccountRequest
+import com.example.data.requests.UpdateProfileRequest
+import com.example.data.responses.UserResponseItem
+import com.example.util.Constants
 
 class UserService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val followRepository: FollowRepository
 ) {
     suspend fun doesUserWithEmailExist(email: String): Boolean{
         return userRepository.getUserByEmail(email) != null
@@ -16,13 +21,39 @@ class UserService(
     fun isValidPassword(enteredPassword: String, actualPassword : String): Boolean{
         return enteredPassword == actualPassword
     }
+
+    suspend fun updateUser(
+        userId: String,
+        profileImageUrl: String,
+        bannerUrl: String?,
+        updateProfileRequest: UpdateProfileRequest
+    ): Boolean{
+        return userRepository.updateUser(userId, profileImageUrl, bannerUrl, updateProfileRequest)
+    }
+
+    suspend fun searchForUsers(query: String, userId: String): List<UserResponseItem>{
+        val users = userRepository.searchForUsers(query)
+        val followByUser = followRepository.getFollowsByUser(userId)
+
+            return users.map { user ->
+                val isFollowing = followByUser.find { it.followedUserId == user.id } != null
+                UserResponseItem(
+                    userId = userId,
+                    username = user.username,
+                    profilePictureUrl = user.profileImageUrl,
+                    bio = user.bio,
+                    isFollowing = isFollowing
+                )
+            }.filter { it.userId != userId }
+    }
     suspend fun createUser(request: CreateAccountRequest){
         userRepository.createUser(
             User(
                 email = request.email,
                 username = request.username,
                 password = request.password,
-                profileImageUrl = "",
+                profileImageUrl = Constants.DEFAULT_PROFILE_PICTURE_PATH,
+                bannerUrl  = Constants.DEFAULT_BANNER_IMAGE_PATH,
                 bio = "",
                 gitHubUrl = null,
                 instagramUrl = null,
