@@ -2,6 +2,7 @@ package com.example.routes
 
 import com.example.data.requests.CreatePostRequest
 import com.example.data.responses.BasicApiResponse
+import com.example.service.CommentService
 import com.example.service.LikeService
 import com.example.service.PostService
 import com.example.util.Constants
@@ -49,12 +50,12 @@ fun Route.createPost(
             val postPictureUrl = "${Constants.BASE_URL}post_pictures/$fileName"
 
             createPostRequest?.let { request ->
-                val createPostAcknowledgement = postService.createPost(
+                val createPostAcknowledged = postService.createPost(
                     request = request,
                     userId = call.userId,
                     imageUrl = postPictureUrl
                 )
-                if (createPostAcknowledgement) {
+                if (createPostAcknowledged) {
                     call.respond(
                         HttpStatusCode.OK,
                         BasicApiResponse<Unit>(
@@ -134,13 +135,13 @@ fun Route.deletePost(
                 return@delete
             }
 
-            if (post.userId == call.userId) {
+            if (post.userId == call.userId) { // This means that the post belongs to the owner hence he has rights
                 postService.deletePost(postId)
                 likeService.deleteLikesForParent(postId)
-                commentService.deleteCommentsForPost(postId)
+                commentService.deleteCommentsFromPost(postId)
                 call.respond(HttpStatusCode.OK)
             } else {
-                call.respond(HttpStatusCode.Unauthorized)
+                call.respond(HttpStatusCode.Unauthorized) // You have no rights o delete other ppl's
             }
         }
     }
@@ -149,7 +150,7 @@ fun Route.deletePost(
 
 fun Route.getPostDetails(postService: PostService){
     get("/api/post/details"){
-        val postId = call.parameters["postId0"] ?: kotlin.run{
+        val postId = call.parameters["postId"] ?: kotlin.run{
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
