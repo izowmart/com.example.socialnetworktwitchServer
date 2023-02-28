@@ -39,7 +39,7 @@ fun Route.likeParent(
                         successful = true
                     )
                 )
-            }else{
+            } else {
                 call.respond(
                     HttpStatusCode.OK,
                     BasicApiResponse<Unit>(
@@ -49,40 +49,41 @@ fun Route.likeParent(
                 )
             }
         }
-        fun Route.unlikeParent(
-            likeService: LikeService,
-        ) {
-            authenticate {
-                delete("/api/unlike") {
-                    val parentId = call.parameters[QueryParams.PARAM_PARENT_ID] ?: kotlin.run {
-                        call.respond(HttpStatusCode.BadRequest)
-                        return@delete
-                    }
-                    val parentType = call.parameters[QueryParams.PARAM_PARENT_TYPE]?.toIntOrNull() ?: kotlin.run {
-                        call.respond(HttpStatusCode.BadRequest)
-                        return@delete
-                    }
-                    val unlikeSuccessful = likeService.unlikeParent(call.userId, parentId, parentType)
-                    if(unlikeSuccessful) {
-                        call.respond(
-                            HttpStatusCode.OK,
-                            BasicApiResponse<Unit>(
-                                successful = true
-                            )
-                        )
-                    } else {
-                        call.respond(
-                            HttpStatusCode.OK,
-                            BasicApiResponse<Unit>(
-                                successful = false,
-                                message = ApiResponseMessages.USER_NOT_FOUND
-                            )
-                        )
-                    }
-                }
+
+    }
+}
+
+fun Route.unlikeParent(
+    likeService: LikeService,
+) {
+    authenticate {
+        delete("/api/unlike") {
+            val parentId = call.parameters[QueryParams.PARAM_PARENT_ID] ?: kotlin.run {
+                call.respond(HttpStatusCode.BadRequest)
+                return@delete
+            }
+            val parentType = call.parameters[QueryParams.PARAM_PARENT_TYPE]?.toIntOrNull() ?: kotlin.run {
+                call.respond(HttpStatusCode.BadRequest)
+                return@delete
+            }
+            val unlikeSuccessful = likeService.unlikeParent(call.userId, parentId, parentType)
+            if (unlikeSuccessful) {
+                call.respond(
+                    HttpStatusCode.OK,
+                    BasicApiResponse<Unit>(
+                        successful = true
+                    )
+                )
+            } else {
+                call.respond(
+                    HttpStatusCode.OK,
+                    BasicApiResponse<Unit>(
+                        successful = false,
+                        message = ApiResponseMessages.USER_NOT_FOUND
+                    )
+                )
             }
         }
-
     }
 }
 
