@@ -4,13 +4,14 @@ import com.example.data.models.Chat
 import com.example.data.models.Message
 import com.example.data.models.User
 import com.example.data.responses.ChatDto
-import org.litote.kmongo.contains
+import com.mongodb.client.model.Sorts.descending
+import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
-import org.litote.kmongo.eq
+import org.litote.kmongo.coroutine.insertOne
 
 class ChatRepositoryImpl(
-    db : CoroutineDatabase
-): ChatRepository {
+    db: CoroutineDatabase
+) : ChatRepository {
     private val users = db.getCollection<User>()
     private val chats = db.getCollection<Chat>()
     private val messages = db.getCollection<Message>()
@@ -29,7 +30,7 @@ class ChatRepositoryImpl(
             .descendingSort(Chat::timestamp)
             .toList()
             .map { chat ->
-                val otherUserId = chat.userIds.find{it != ownUserId}
+                val otherUserId = chat.userIds.find { it != ownUserId }
                 val user = users.findOneById(otherUserId ?: "")
                 val message = messages.findOneById(chat.lastMessageId)
 
@@ -51,5 +52,32 @@ class ChatRepositoryImpl(
 
     override suspend fun insertMessage(message: Message) {
         messages.insertOne(message)
+    }
+
+    override suspend fun insertChat(userId1: String, userId2: String, messageId: String): String {
+        val chat = Chat(
+            userIds = listOf(
+                userId1,
+                userId2
+            ),
+            lastMessageId = messageId,
+            timestamp = System.currentTimeMillis()
+        )
+        val chatId = chats.insertOne(chat).insertedId?.asObjectId().toString()
+        messages.updateOneById(messageId, setValue(Message::chatId, chatId))
+        return chat.id
+    }
+
+    override suspend fun doesChatByUsersExist(userId1: String, userId2: String): Boolean {
+       return chats.find(
+           and(
+               Chat::userIds contains userId1,
+               Chat::userIds contains userId2
+           )
+       ).first() != null
+    }
+
+    override suspend fun updateLastMessageIdForChat(chatId: String, lastMessageId: String) {
+        chats.updateOneById(chatId, setValue(Chat::lastMessageId, lastMessageId))
     }
 }

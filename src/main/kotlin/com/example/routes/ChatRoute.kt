@@ -1,5 +1,6 @@
 package com.example.routes
 
+import com.example.data.websocket.WsClientMessage
 import com.example.service.chat.ChatController
 import com.example.service.chat.ChatService
 import com.example.util.Constants
